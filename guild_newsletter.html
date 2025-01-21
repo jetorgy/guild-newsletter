@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body style="
+    margin: 0;
+    padding: 0;
+    background-color: #060610;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  ">
+    <!-- Grid Lines -->
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+    ">
+      <!-- Vertical Lines -->
+      <div style="
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+      ">
+        <!-- Left pair -->
+        <div style="
+          display: flex;
+          gap: 60px;
+          margin-right: 400px;
+        ">
+          <div style="width: 1px; height: 100%; background: rgba(255, 255, 255, 0.05);"></div>
+          <div style="width: 1px; height: 100%; background: rgba(255, 255, 255, 0.05);"></div>
+        </div>
+        
+        <!-- Right pair -->
+        <div style="
+          display: flex;
+          gap: 60px;
+          margin-left: 400px;
+        ">
+          <div style="width: 1px; height: 100%; background: rgba(255, 255, 255, 0.05);"></div>
+          <div style="width: 1px; height: 100%; background: rgba(255, 255, 255, 0.05);"></div>
+        </div>
+      </div>
+      
+      <!-- Horizontal Lines -->
+      <div style="
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      ">
+        <!-- Top section line (moved up) -->
+        <div style="
+          position: absolute;
+          top: 95px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+
+        <!-- Existing horizontal lines -->
+        <div style="
+          position: absolute;
+          top: 150px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+        <div style="
+          position: absolute;
+          top: 320px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+        <div style="
+          position: absolute;
+          top: 440px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+        <div style="
+          position: absolute;
+          top: 560px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+        
+        <!-- New bottom line -->
+        <div style="
+          position: absolute;
+          bottom: 140px;
+          width: 100%;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.05);
+        "></div>
+      </div>
+
+      <!-- X Decorations -->
+      <div style="position: absolute; width: 100%; height: 100%;">
+        <!-- Top X's -->
+        <div style="
+          position: absolute;
+          top: 123px;
+          left: calc(50% - 430px);
+          transform: translate(-50%, -50%);
+          width: 45px;
+          height: 45px;
+        ">
+          <img src="public/x_decoration.svg" 
+               style="width: 100%; height: 100%; opacity: 1.0;" 
+               alt="X decoration">
+        </div>
+        <div style="
+          position: absolute;
+          top: 123px;
+          right: calc(50% - 430px);
+          transform: translate(50%, -50%);
+          width: 45px;
+          height: 45px;
+        ">
+          <img src="public/x_decoration.svg" 
+               style="width: 100%; height: 100%; opacity: 1.0;" 
+               alt="X decoration">
+        </div>
+
+        <!-- Bottom X's -->
+        <div style="
+          position: absolute;
+          bottom: 123px;
+          left: calc(50% - 430px);
+          transform: translate(-50%, -50%);
+          width: 45px;
+          height: 45px;
+        ">
+          <img src="public/x_decoration.svg" 
+               style="width: 100%; height: 100%; opacity: 1.0;" 
+               alt="X decoration">
+        </div>
+        <div style="
+          position: absolute;
+          bottom: 123px;
+          right: calc(50% - 430px);
+          transform: translate(50%, -50%);
+          width: 45px;
+          height: 45px;
+        ">
+          <img src="public/x_decoration.svg" 
+               style="width: 100%; height: 100%; opacity: 1.0;" 
+               alt="X decoration">
+        </div>
+      </div>
+    </div>
+
+    <!-- Radial Light Source -->
+    <div style="
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(
+        circle at center,
+        rgba(149, 179, 255, 1.0) 0%,
+        rgba(149, 179, 255, 0.60) 18%,
+        rgba(149, 179, 255, 0.20) 25%,
+        rgba(44, 51, 69, 0.05) 60%,
+        rgba(44, 51, 69, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 0.5;
+    "></div>
+
+    <!-- Background Logo with blur -->
+    <div style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      filter: blur(12px);
+      z-index: 1;
+    ">
+      <img src="public/guild-icon-white.svg" 
+           style="width: 100%; height: 100%; object-fit: contain; opacity: 1.0; filter: invert(80%) sepia(19%) saturate(900%) hue-rotate(182deg) brightness(200%) contrast(103%);" 
+           alt="Guild Logo Background">
+    </div>
+
+    <!-- Content Container -->
+    <div style="
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      color: white;
+    ">
+      <!-- Header -->
+      <div>
+        <h1>SPCNG Guild Newsletter</h1>
+        <p><?= monthYear ?></p>
+      </div>
+      
+      <!-- Main Story -->
+      <div>
+        <h2>Main Story</h2>
+        <p><?= mainStory ?></p>
+      </div>
+      
+      <!-- Updates -->
+      <div>
+        <h3>Updates</h3>
+        <ul>
+          <?!= updates ?>
+        </ul>
+      </div>
+      
+      <!-- Signature -->
+      <div>
+        <p>Best regards,<br>The Asteres Team</p>
+      </div>
+      
+      <!-- Footer -->
+      <div>
+        <p>© <?= year ?> Asteres Technologies LLC. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
