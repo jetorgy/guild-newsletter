@@ -39,43 +39,108 @@ function extractContent(text, definitions) {
   Logger.log('Starting content extraction');
   const contentSections = {};
   
-  // For each defined variable, find its content
-  Object.entries(definitions).forEach(([varName, def]) => {
-    // For content sections, use the placeholder; for titles, use the variable name
-    const searchName = def.type === 'Content' ? def.placeholder : varName;
-    Logger.log(`Looking for ${def.type} with pattern name "${searchName}" for variable "${varName}"`);
-    
-    // Log the exact pattern we're searching for
-    const pattern = `{#${searchName}}([\\s\\S]*?){\\/${searchName}}`;
-    Logger.log(`Using regex pattern: ${pattern}`);
-    
-    const regex = new RegExp(pattern, 'g');
-    const match = regex.exec(text);
-    
+  // Extract just the Newsletter Content section
+  const sections = text.split('###');
+  const newsletterSection = sections.find(section => section.trim().startsWith('Newsletter Content'));
+  
+  if (!newsletterSection) {
+    Logger.log('Error: Newsletter Content section not found');
+    return {};
+  }
+  
+  const newsletterContent = newsletterSection.replace('Newsletter Content', '').trim();
+  Logger.log('Newsletter content section extracted');
+  
+  // First extract the document title
+  const docTitleDef = Object.entries(definitions).find(([_, def]) => def.type === 'Document Title');
+  if (docTitleDef) {
+    const [varName, def] = docTitleDef;
+    const pattern = `\\{#${varName}\\}([\\s\\S]*?)\\{\\/${varName}\\}`;
+    const match = new RegExp(pattern, 'g').exec(newsletterContent);
     if (match) {
-      let value = match[1].trim();
-      Logger.log(`Found raw content for "${varName}": "${value}"`);
-      let sectionContent = '';
-      
-      // Format the content based on its section type
-      if (def.type === 'Document Title') {
-        sectionContent = `<h1>${value}</h1>`;
-      } else if (def.type === 'Titles') {
-        sectionContent = `<h3>${value}</h3>`;
-      } else if (def.type === 'Content') {
-        // Format paragraphs and bullet points
-        sectionContent = formatContent(value);
-      }
-      
-      contentSections[varName] = sectionContent;
-      Logger.log(`Formatted content for "${varName}": "${sectionContent}"`);
-    } else {
-      Logger.log(`Warning: No content found for "${varName}" using pattern "${searchName}"`);
-      // Log a snippet of the text around where we expect the content
-      const textSnippet = text.substring(0, 500) + '...';
-      Logger.log(`First 500 characters of text being searched: ${textSnippet}`);
+      contentSections.document_title = `<h1>${match[1].trim()}</h1>`;
     }
-  });
+  }
+  
+  // Extract main content section
+  const mainTitleDef = Object.entries(definitions).find(([varName, def]) => varName === 'main_content_title');
+  const mainContentDef = Object.entries(definitions).find(([varName, def]) => varName === 'main_content');
+  
+  if (mainTitleDef && mainContentDef) {
+    const [titleVarName, titleDef] = mainTitleDef;
+    const [contentVarName, contentDef] = mainContentDef;
+    
+    // Extract title
+    const titlePattern = `\\{#${titleVarName}\\}([\\s\\S]*?)\\{\\/${titleVarName}\\}`;
+    const titleMatch = new RegExp(titlePattern, 'g').exec(newsletterContent);
+    if (titleMatch) {
+      contentSections.main_content_title = `<h3>${titleMatch[1].trim()}</h3>`;
+    }
+    
+    // Extract content
+    const contentPattern = `\\{#${contentDef.placeholder}\\}([\\s\\S]*?)\\{\\/${contentDef.placeholder}\\}`;
+    const contentMatch = new RegExp(contentPattern, 'g').exec(newsletterContent);
+    if (contentMatch) {
+      contentSections.main_content = formatContent(contentMatch[1].trim());
+    }
+  }
+  
+  // Extract section 1
+  const section1TitleDef = Object.entries(definitions).find(([varName, def]) => varName === 'section_title_1');
+  const section1ContentDef = Object.entries(definitions).find(([varName, def]) => varName === 'section_1_content');
+  
+  if (section1TitleDef && section1ContentDef) {
+    const [titleVarName, titleDef] = section1TitleDef;
+    const [contentVarName, contentDef] = section1ContentDef;
+    
+    // Extract title
+    const titlePattern = `\\{#${titleVarName}\\}([\\s\\S]*?)\\{\\/${titleVarName}\\}`;
+    const titleMatch = new RegExp(titlePattern, 'g').exec(newsletterContent);
+    if (titleMatch) {
+      contentSections.section_title_1 = `<h3>${titleMatch[1].trim()}</h3>`;
+    }
+    
+    // Extract content
+    const contentPattern = `\\{#${contentDef.placeholder}\\}([\\s\\S]*?)\\{\\/${contentDef.placeholder}\\}`;
+    const contentMatch = new RegExp(contentPattern, 'g').exec(newsletterContent);
+    if (contentMatch) {
+      contentSections.section_1_content = formatContent(contentMatch[1].trim());
+    }
+  }
+  
+  // Extract section 2
+  const section2TitleDef = Object.entries(definitions).find(([varName, def]) => varName === 'section_title_2');
+  const section2ContentDef = Object.entries(definitions).find(([varName, def]) => varName === 'section_2_content');
+  
+  if (section2TitleDef && section2ContentDef) {
+    const [titleVarName, titleDef] = section2TitleDef;
+    const [contentVarName, contentDef] = section2ContentDef;
+    
+    // Extract title
+    const titlePattern = `\\{#${titleVarName}\\}([\\s\\S]*?)\\{\\/${titleVarName}\\}`;
+    const titleMatch = new RegExp(titlePattern, 'g').exec(newsletterContent);
+    if (titleMatch) {
+      contentSections.section_title_2 = `<h3>${titleMatch[1].trim()}</h3>`;
+    }
+    
+    // Extract content
+    const contentPattern = `\\{#${contentDef.placeholder}\\}([\\s\\S]*?)\\{\\/${contentDef.placeholder}\\}`;
+    const contentMatch = new RegExp(contentPattern, 'g').exec(newsletterContent);
+    if (contentMatch) {
+      contentSections.section_2_content = formatContent(contentMatch[1].trim());
+    }
+  }
+  
+  // Extract signature
+  const signatureDef = Object.entries(definitions).find(([varName, def]) => varName === 'signature');
+  if (signatureDef) {
+    const [varName, def] = signatureDef;
+    const pattern = `\\{#${def.placeholder}\\}([\\s\\S]*?)\\{\\/${def.placeholder}\\}`;
+    const match = new RegExp(pattern, 'g').exec(newsletterContent);
+    if (match) {
+      contentSections.signature = formatContent(match[1].trim());
+    }
+  }
   
   Logger.log('Final contentSections object: ' + JSON.stringify(contentSections, null, 2));
   const result = { contentSections, monthYear: getMonthYear(), year: new Date().getFullYear() };

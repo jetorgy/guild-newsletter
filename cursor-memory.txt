@@ -1,0 +1,106 @@
+ENTRY: Content Extraction Fix - 2024-01-17
+ISSUE: Content sections not being extracted, only titles working
+CAUSE: Using wrong tag names for content section extraction
+RESOLUTION: Modified extractContent to use correct tag names
+
+#old code
+const searchName = def.type === 'Content' ? def.placeholder : varName;
+
+#new code
+const searchName = def.type === 'Content' ? varName : varName;
+
+EXPLANATION:
+- Previously used placeholder names for content sections which didn't match actual tags
+- Now using the variable names directly which match the tags in Newsletter Content section
+- Title extraction was working because it already used variable names
+- This change ensures consistent tag name usage across all section types
+
+ENTRY: Content Extraction Fix Attempt 2 - 2024-01-17
+ISSUE: Content sections still not being extracted, wrong tag names being used
+CAUSE: Previous fix was backwards - using variable names for content when should use placeholder names
+RESOLUTION: Modified extractContent to use correct tag names for each type
+
+#old code
+const searchName = def.type === 'Content' ? varName : varName;
+
+#new code
+const searchName = def.type === 'Content' ? def.placeholder : varName;
+
+EXPLANATION:
+- For content sections (main_content, section_1_content, etc), use the placeholder name (story_content, section_1_content)
+- For titles and document title, keep using the variable name since that's working
+- This matches how the content is actually tagged in the Newsletter Content section
+- Previous fix made everything use variable names which was incorrect
+
+ENTRY: Content Extraction Fix Attempt 3 - 2024-01-17
+ISSUE: Regex pattern failing to match content sections despite correct tags
+CAUSE: Special characters in regex pattern not properly escaped, leading to failed matches
+RESOLUTION: Added proper regex escaping and improved debug logging
+
+#old code
+const pattern = `{#${searchName}}([\\s\\S]*?){\\/${searchName}}`;
+
+#new code
+const escapedTag = searchName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const pattern = `\\{#${escapedTag}\\}([\\s\\S]*?)\\{\\/${escapedTag}\\}`;
+
+EXPLANATION:
+- Added proper escaping of special regex characters in tag names
+- Added more detailed logging to see exact text around tags
+- Added position tracking to help debug tag locations
+- Previous attempts failed because curly braces and other special characters weren't escaped
+
+ENTRY: Content Extraction Fix Attempt 4 - 2024-01-17
+ISSUE: Content extraction searching in wrong section of document
+CAUSE: Searching entire document text including variable definitions section
+RESOLUTION: Extract and search only in Newsletter Content section
+
+#old code
+const match = regex.exec(text);
+
+#new code
+const sections = text.split('###');
+const newsletterSection = sections.find(section => section.trim().startsWith('Newsletter Content'));
+const newsletterContent = newsletterSection.replace('Newsletter Content', '').trim();
+const match = regex.exec(newsletterContent);
+
+EXPLANATION:
+- Previously searching entire document including variable definitions
+- Now extracting just the Newsletter Content section before searching
+- This ensures we only look for content where it actually exists
+- Removed text preview logging since we're now searching in the correct section
+
+ENTRY: Content Organization Fix - 2024-01-17
+ISSUE: Content sections not properly paired with their titles
+CAUSE: Content extraction was processing all titles first, then all content
+RESOLUTION: Restructured content extraction to process each section (title + content) together
+
+#old code
+Object.entries(definitions).forEach(([varName, def]) => {
+  const searchName = def.type === 'Content' ? def.placeholder : varName;
+  const pattern = `\\{#${searchName}\\}([\\s\\S]*?)\\{\\/${searchName}\\}`;
+  const match = regex.exec(newsletterContent);
+  // ... process match
+});
+
+#new code
+// Extract main content section
+const mainTitleDef = Object.entries(definitions).find(([varName, def]) => varName === 'main_content_title');
+const mainContentDef = Object.entries(definitions).find(([varName, def]) => varName === 'main_content');
+
+if (mainTitleDef && mainContentDef) {
+  const [titleVarName, titleDef] = mainTitleDef;
+  const [contentVarName, contentDef] = mainContentDef;
+  
+  // Extract title and content together
+  const titlePattern = `\\{#${titleVarName}\\}([\\s\\S]*?)\\{\\/${titleVarName}\\}`;
+  const contentPattern = `\\{#${contentDef.placeholder}\\}([\\s\\S]*?)\\{\\/${contentDef.placeholder}\\}`;
+  // ... process matches
+}
+
+EXPLANATION:
+- Previously processed all variables in a single loop, separating titles from content
+- Now extracting each section (title + content) together to maintain proper pairing
+- Organized extraction by section: document title, main content, section 1, section 2, signature
+- This ensures titles are immediately followed by their corresponding content in the output
+
