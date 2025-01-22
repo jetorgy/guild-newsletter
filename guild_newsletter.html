@@ -24,44 +24,49 @@
       box-sizing: border-box;
     ">
       <!-- Main Content -->
-      <div>
+      <div class="newsletter-content">
         <!-- Header -->
-        <h1 style="margin-top: 0; text-align: center;">SPCNG Guild Newsletter</h1>
-        <p style="text-align: center;"><?= monthYear ?></p>
+        <div class="header-section">
+          <?!= document_title ?>
+          <p style="text-align: center;"><?= monthYear ?></p>
+        </div>
 
-        <!-- Main Story -->
-        <h2>Main Story</h2>
-        <p>The SPCNG Guild is thrilled to announce the addition of five new member companies, significantly expanding our collaborative network and capabilities. We're also excited to share news about our latest facility development.</p>
+        <!-- Main Story Section -->
+        <div class="main-story-section">
+          <?!= main_content_title ?>
+          <?!= main_content ?>
+        </div>
 
-        <!-- Updates -->
-        <h3>Member Updates</h3>
-        <ul>
-          <li>LunarBot Dynamics - Specializing in advanced robotics for lunar exploration.</li>
-          <li>Astro-Mech Solutions - Cutting-edge robotics for space station maintenance.</li>
-          <li>Orbital Fabrication Inc. - Precision component manufacturing for spacecraft.</li>
-          <li>Quantum Propulsion Systems - Innovative space propulsion technologies.</li>
-          <li>Exo-Data Analytics - Specializing in AI-driven space data analysis.</li>
-          <li>Facility Update: The Guild has completed construction of a new facility featuring a state-of-the-art vacuum chamber, enhancing our testing capabilities for space-grade equipment.</li>
-        </ul>
+        <!-- Dynamic Sections -->
+        <div class="dynamic-sections">
+          <!-- Section 1 -->
+          <div class="content-section">
+            <?!= section_title_1 ?>
+            <?!= section_1_content ?>
+          </div>
 
-        <h3>Guild Update</h3>
-        <ul>
-          <li>Facility Update: The Guild has completed construction of a new facility featuring a state-of-the-art vacuum chamber, enhancing our testing capabilities for space-grade equipment.</li>
-        </ul>
+          <!-- Section 2 -->
+          <div class="content-section">
+            <?!= section_title_2 ?>
+            <?!= section_2_content ?>
+          </div>
+        </div>
 
-        <!-- Signature -->
-        <p>Best regards,<br>The Asteres Team</p>
-      </div>
+        <!-- Signature Section -->
+        <div class="signature-section">
+          <?!= signature ?>
+        </div>
 
-      <!-- Footer -->
-      <div style="
-      position: absolute;
-      height: 50%;
-      width: 100%;
-      text-align: center;
-      color: white;
-      ">
-      <p>© <?= year ?> Asteres Technologies LLC. All rights reserved.</p>
+        <!-- Footer -->
+        <div style="
+          position: absolute;
+          height: 50%;
+          width: 100%;
+          text-align: center;
+          color: white;
+        ">
+          <p>© <?= year ?> Asteres Technologies LLC. All rights reserved.</p>
+        </div>
       </div>
     </div>
   </body>
