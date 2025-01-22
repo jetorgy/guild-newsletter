@@ -3,54 +3,66 @@
   <head>
     <base target="_top">
   </head>
-  <body style="margin: 0; padding: 0; background-color: #060610;">
-    <table width="600" cellpadding="0" cellspacing="0" border="0" align="center">
-      <tr>
-        <td style="position: relative;">
-          <!-- Background Image Table -->
-          <table cellpadding="0" cellspacing="0" border="0" width="600" style="position: absolute; top: 0; left: 0;">
-            <tr>
-              <td>
-                <img src="cid:newsletterBackground" 
-                     width="600" 
-                     style="display: block; width: 600px; max-width: 600px;" 
-                     alt="">
-              </td>
-            </tr>
-          </table>
+  <body style="
+    margin: 0;
+    padding: 0;
+    background-image: url('cid:newsletterBackground');
+    background-size: contain;
+    background-position: top;
+    background-repeat: no-repeat;
+    background-color: #060610;
+    height: 1200px;
+  ">
+    <!-- Newsletter Content -->
+    <div style="
+      position: relative;
+      width: 600px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 40px;
+      color: white;
+      box-sizing: border-box;
+    ">
+      <!-- Main Content -->
+      <div>
+        <!-- Header -->
+        <h1 style="margin-top: 0; text-align: center;">SPCNG Guild Newsletter</h1>
+        <p style="text-align: center;"><?= monthYear ?></p>
 
-          <!-- Content Table -->
-          <table cellpadding="0" cellspacing="0" border="0" width="600">
-            <tr>
-              <td style="
-                background-color: rgba(0, 0, 0, 0.5);
-                color: white;
-                padding: 40px 20px;
-              ">
-                <!-- Header -->
-                <h1 style="margin-top: 0;">SPCNG Guild Newsletter</h1>
-                <p><?= monthYear ?></p>
+        <!-- Main Story -->
+        <h2>Main Story</h2>
+        <p>The SPCNG Guild is thrilled to announce the addition of five new member companies, significantly expanding our collaborative network and capabilities. We're also excited to share news about our latest facility development.</p>
 
-                <!-- Main Story -->
-                <h2>Main Story</h2>
-                <p><?= mainStory ?></p>
+        <!-- Updates -->
+        <h3>Member Updates</h3>
+        <ul>
+          <li>LunarBot Dynamics - Specializing in advanced robotics for lunar exploration.</li>
+          <li>Astro-Mech Solutions - Cutting-edge robotics for space station maintenance.</li>
+          <li>Orbital Fabrication Inc. - Precision component manufacturing for spacecraft.</li>
+          <li>Quantum Propulsion Systems - Innovative space propulsion technologies.</li>
+          <li>Exo-Data Analytics - Specializing in AI-driven space data analysis.</li>
+          <li>Facility Update: The Guild has completed construction of a new facility featuring a state-of-the-art vacuum chamber, enhancing our testing capabilities for space-grade equipment.</li>
+        </ul>
 
-                <!-- Updates -->
-                <h3>Updates</h3>
-                <ul>
-                  <?!= updates ?>
-                </ul>
+        <h3>Guild Update</h3>
+        <ul>
+          <li>Facility Update: The Guild has completed construction of a new facility featuring a state-of-the-art vacuum chamber, enhancing our testing capabilities for space-grade equipment.</li>
+        </ul>
 
-                <!-- Signature -->
-                <p>Best regards,<br>The Asteres Team</p>
+        <!-- Signature -->
+        <p>Best regards,<br>The Asteres Team</p>
+      </div>
 
-                <!-- Footer -->
-                <p>© <?= year ?> Asteres Technologies LLC. All rights reserved.</p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
+      <!-- Footer -->
+      <div style="
+      position: absolute;
+      height: 50%;
+      width: 100%;
+      text-align: center;
+      color: white;
+      ">
+      <p>© <?= year ?> Asteres Technologies LLC. All rights reserved.</p>
+      </div>
+    </div>
   </body>
 </html>
