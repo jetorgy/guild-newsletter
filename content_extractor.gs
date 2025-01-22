@@ -1,155 +1,148 @@
-// Function to extract and format content based on its structure
-function formatContent(content) {
-  if (!content) return '';
+// Function to parse variable definitions from document sections
+function parseVariableDefinitions(text) {
+  Logger.log('Starting variable definitions parsing');
+  const definitions = {};
+  const sections = text.split('###').filter(section => section.trim());
   
-  // Split content by newlines and filter empty lines
-  const lines = content.split('\n')
-                      .map(line => line.trim())
-                      .filter(line => line.length > 0);
+  Logger.log('Found sections: [' + sections.map(s => s.split('\n')[0].trim()).join(', ') + ']');
   
-  // Initialize content structure
-  const formattedContent = {
-    paragraphs: [],
-    bullets: []
-  };
-  
-  let currentParagraph = [];
-  
-  // Process each line
-  lines.forEach(line => {
-    if (line.match(/^[•\-\*]\s/)) {
-      // If we were building a paragraph, save it
-      if (currentParagraph.length > 0) {
-        formattedContent.paragraphs.push(currentParagraph.join('<br>'));
-        currentParagraph = [];
-      }
-      // Add bullet point
-      formattedContent.bullets.push(line.replace(/^[•\-\*]\s*/, '').trim());
-    } else {
-      currentParagraph.push(line);
+  sections.forEach(section => {
+    const lines = section.trim().split('\n');
+    const sectionName = lines[0].trim();
+    
+    Logger.log('Processing section: "' + sectionName + '"');
+    
+    // Skip the Newsletter Content section as it contains the actual content
+    if (sectionName !== 'Newsletter Content') {
+      lines.slice(1).forEach(line => {
+        if (line.includes('=')) {
+          const [varName, placeholder] = line.split('=').map(part => part.trim());
+          // Store the mapping between variable name and its placeholder
+          // Extract just the name between {# and }
+          const placeholderName = placeholder.match(/{#([^}]+)}/)?.[1] || placeholder;
+          definitions[varName] = {
+            placeholder: placeholderName,
+            type: sectionName
+          };
+          Logger.log(`Added definition - Variable: "${varName}", Placeholder: "${placeholderName}", Type: "${sectionName}"`);
+        }
+      });
     }
   });
   
-  // Save any remaining paragraph content
-  if (currentParagraph.length > 0) {
-    formattedContent.paragraphs.push(currentParagraph.join('<br>'));
-  }
-  
-  // Generate appropriate HTML based on content structure
-  return generateHTML(formattedContent);
+  Logger.log('Final definitions object: ' + JSON.stringify(definitions, null, 2));
+  return definitions;
 }
 
-// Generate HTML based on content structure
-function generateHTML(content) {
+// Function to extract content using the variable definitions
+function extractContent(text, definitions) {
+  Logger.log('Starting content extraction');
+  const contentSections = {};
+  
+  // For each defined variable, find its content
+  Object.entries(definitions).forEach(([varName, def]) => {
+    // For content sections, use the placeholder; for titles, use the variable name
+    const searchName = def.type === 'Content' ? def.placeholder : varName;
+    Logger.log(`Looking for ${def.type} with pattern name "${searchName}" for variable "${varName}"`);
+    
+    // Log the exact pattern we're searching for
+    const pattern = `{#${searchName}}([\\s\\S]*?){\\/${searchName}}`;
+    Logger.log(`Using regex pattern: ${pattern}`);
+    
+    const regex = new RegExp(pattern, 'g');
+    const match = regex.exec(text);
+    
+    if (match) {
+      let value = match[1].trim();
+      Logger.log(`Found raw content for "${varName}": "${value}"`);
+      let sectionContent = '';
+      
+      // Format the content based on its section type
+      if (def.type === 'Document Title') {
+        sectionContent = `<h1>${value}</h1>`;
+      } else if (def.type === 'Titles') {
+        sectionContent = `<h3>${value}</h3>`;
+      } else if (def.type === 'Content') {
+        // Format paragraphs and bullet points
+        sectionContent = formatContent(value);
+      }
+      
+      contentSections[varName] = sectionContent;
+      Logger.log(`Formatted content for "${varName}": "${sectionContent}"`);
+    } else {
+      Logger.log(`Warning: No content found for "${varName}" using pattern "${searchName}"`);
+      // Log a snippet of the text around where we expect the content
+      const textSnippet = text.substring(0, 500) + '...';
+      Logger.log(`First 500 characters of text being searched: ${textSnippet}`);
+    }
+  });
+  
+  Logger.log('Final contentSections object: ' + JSON.stringify(contentSections, null, 2));
+  const result = { contentSections, monthYear: getMonthYear(), year: new Date().getFullYear() };
+  Logger.log('Final template data: ' + JSON.stringify(result, null, 2));
+  return result;
+}
+
+// Function to format content with paragraphs and bullet points
+function formatContent(content) {
+  if (!content) return '';
+  
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line);
   let html = '';
+  let inList = false;
   
-  // Add paragraphs if they exist
-  if (content.paragraphs.length > 0) {
-    content.paragraphs.forEach(paragraph => {
-      html += `<p>${paragraph}</p>\n`;
-    });
-  }
+  lines.forEach(line => {
+    if (line.match(/^[•\-\*]\s/)) {
+      if (!inList) {
+        html += '<ul>\n';
+        inList = true;
+      }
+      html += `  <li>${line.replace(/^[•\-\*]\s*/, '')}</li>\n`;
+    } else {
+      if (inList) {
+        html += '</ul>\n';
+        inList = false;
+      }
+      html += `<p>${line}</p>\n`;
+    }
+  });
   
-  // Add bullet points if they exist
-  if (content.bullets.length > 0) {
-    html += '<ul>\n';
-    content.bullets.forEach(bullet => {
-      html += `  <li>${bullet}</li>\n`;
-    });
-    html += '</ul>';
+  if (inList) {
+    html += '</ul>\n';
   }
   
   return html;
 }
 
-// Format content based on section type
-function formatByType(text, type) {
-  if (!text) return '';
-  
-  switch(type) {
-    case 'document_title':
-      return `<h1>${text.trim()}</h1>`;
-    case 'title':
-      return `<h3>${text.trim()}</h3>`;
-    case 'content':
-      return formatContent(text);
-    default:
-      return text;
-  }
-}
-
-// Extract content from document
-function extractNewsletterContent(docId) {
-  try {
-    const doc = DocumentApp.openById(docId);
-    const body = doc.getBody();
-    const text = body.getText();
-    
-    // Initialize content object
-    let content = {};
-    
-    // Extract all placeholders and their content
-    const placeholderRegex = /{#([^}]+)}([\s\S]*?){\/\1}/g;
-    let match;
-    
-    while ((match = placeholderRegex.exec(text)) !== null) {
-      const placeholder = match[1];
-      const value = match[2];
-      
-      // Determine the type based on the section markers
-      let type = 'content';  // default type
-      if (text.includes('###Document Title') && placeholder === 'document_title') {
-        type = 'document_title';
-      } else if (text.includes('###Titles') && text.includes(placeholder)) {
-        type = 'title';
-      }
-      
-      // Format the content based on its type
-      content[placeholder] = formatByType(value, type);
-    }
-    
-    return content;
-  } catch (error) {
-    Logger.log('Error extracting content: ' + error.toString());
-    throw error;
-  }
-}
-
-// Function to validate if all required placeholders are present
-function validateContent(content) {
-  const requiredFields = [
-    'document_title',
-    'main_content_title',
-    'story_content',
-    'section_title_1',
-    'section_1_content',
-    'section_title_2',
-    'section_2_content',
-    'signature'
-  ];
-  
-  const missingFields = requiredFields.filter(field => !content[field]);
-  
-  if (missingFields.length > 0) {
-    throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
-  }
-  
-  return true;
-}
-
-// Main function to get newsletter content
+// Main function to extract newsletter content
 function getNewsletterContent(docId) {
   try {
-    const content = extractNewsletterContent(docId);
-    validateContent(content);
-    return content;
+    const doc = DocumentApp.openById(docId);
+    const text = doc.getBody().getText();
+    
+    Logger.log('Full document text:');
+    Logger.log(text);
+    
+    // First parse the variable definitions
+    const definitions = parseVariableDefinitions(text);
+    
+    // Then extract content using those definitions
+    return extractContent(text, definitions);
   } catch (error) {
     Logger.log('Error in getNewsletterContent: ' + error.toString());
     throw error;
   }
 }
 
-// Function to extract and format content based on its structure
+// Function to get the current month and year
+function getMonthYear() {
+  const date = new Date();
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                 'July', 'August', 'September', 'October', 'November', 'December'];
+  return months[date.getMonth()] + " " + date.getFullYear();
+}
+
+// Function to test document access
 function testDocAccess() {
   const DOC_ID = '18BC6RADMpf0gg5ihPRloD4F8XOk2HuDB9zyLLDF-h3o';
   

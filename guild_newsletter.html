@@ -17,50 +17,47 @@
     <div style="
       position: relative;
       width: 600px;
-      height: 100%;
+      min-height: 1000px;
       margin: 0 auto;
       padding: 40px;
       color: white;
       box-sizing: border-box;
     ">
       <!-- Main Content -->
-      <div class="newsletter-content">
-        <!-- Header -->
-        <div class="header-section">
-          <?!= document_title ?>
-          <p style="text-align: center;"><?= monthYear ?></p>
-        </div>
+      <div class="newsletter-content" style="height: 90%;">
+        <!-- Debug Info -->
+        <? Logger.log('Template received contentSections: ' + JSON.stringify(contentSections, null, 2)); ?>
+        
+        <!-- Date -->
+        <p style="text-align: center;"><?= monthYear ?></p>
 
-        <!-- Main Story Section -->
-        <div class="main-story-section">
-          <?!= main_content_title ?>
-          <?!= main_content ?>
-        </div>
-
-        <!-- Dynamic Sections -->
-        <div class="dynamic-sections">
-          <!-- Section 1 -->
+        <!-- Dynamic Content -->
+        <? 
+          Logger.log('Starting content loop');
+          if (contentSections) {
+            Logger.log('Number of sections to process: ' + Object.keys(contentSections).length);
+            for (const [key, value] of Object.entries(contentSections)) { 
+              Logger.log(`Processing section "${key}" with value: "${value}"`);
+        ?>
           <div class="content-section">
-            <?!= section_title_1 ?>
-            <?!= section_1_content ?>
+            <?!= value ?>
           </div>
-
-          <!-- Section 2 -->
-          <div class="content-section">
-            <?!= section_title_2 ?>
-            <?!= section_2_content ?>
-          </div>
+        <?    }
+          } else {
+            Logger.log('Warning: contentSections is undefined or null');
+          }
+        ?>
+        
+        <!-- div Spacer -->
+         <div style="
+         min-height: 150px;
+         ">
+         
         </div>
-
-        <!-- Signature Section -->
-        <div class="signature-section">
-          <?!= signature ?>
-        </div>
-
         <!-- Footer -->
         <div style="
           position: absolute;
-          height: 50%;
+          min-height: 50px;
           width: 100%;
           text-align: center;
           color: white;
