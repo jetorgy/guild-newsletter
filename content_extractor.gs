@@ -58,7 +58,8 @@ function extractContent(text, definitions) {
     const pattern = `\\{#${varName}\\}([\\s\\S]*?)\\{\\/${varName}\\}`;
     const match = new RegExp(pattern, 'g').exec(newsletterContent);
     if (match) {
-      contentSections.document_title = `<h1>${match[1].trim()}</h1>`;
+      // Center align the title and add date below it
+      contentSections.document_title = `<div style="text-align: center;"><h1>${match[1].trim()}</h1><p>${getMonthYear()}</p></div>`;
     }
   }
   
